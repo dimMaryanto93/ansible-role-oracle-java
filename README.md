@@ -36,13 +36,25 @@ Untuk menggunakan role ini, kita membutuhkan Installer/package oracle jdk itu se
 Setelah kita download, misalnya nama filenya `jdk-11.0.12_linux-x64_bin.rpm` sekarang kita simpan dalam folder `files` dalam strusture project ansible roles anda. sebagai contoh seperti berikut:
 
 ```bash
-
+➜  ansible-role-oracle-java git:(master) tree .
+.
+├── README.md
+├── files
+│   └── jdk-11.0.12_linux-x64_bin.rpm
+├── tests
+│   ├── inventory
+│   └── test.yml
+└── vars
 ```
 
 Role Variables
 --------------
 
-None
+Ada beberapa variable yang temen-temen bisa gunakan untuk install oracle jdk, diantaranya seperti berikut:
+
+| Variable name          | Example value | Description |
+| :---                   | :---          | :---        |
+| `oracle_java_version`  | `11.0.12`     | Variable digunakan untuk menginstall version ter-tentu dari oracle jdk |
 
 Dependencies
 ------------
@@ -58,7 +70,7 @@ Including an example of how to use your role (for instance, with variables passe
 - hosts: servers
   become: true
   roles:
-      - { role: dimmaryanto93.kubeadm }
+      - { role: dimmaryanto93.oracle_java }
 ```
 
 License
