@@ -30,13 +30,6 @@
 - set_fact:
     oracle_jdk_filename: "jdk-{{ oracle_java_version }}_{{ ansible_system | lower }}-{{ oracle_java_arch }}_bin.{{ ansible_binary_package }}"
 
-- name: Check for package {{ oracle_jdk_filename }} exists
-  delegate_to: localhost
-  stat:
-    path: "files/{{ oracle_jdk_filename }}"
-  register: local_file
-  failed_when: not local_file.stat.exists
-
 - name: Check that the /tmp/{{ oracle_jdk_filename }} exists
   stat:
     path: /tmp/{{ oracle_jdk_filename }}
