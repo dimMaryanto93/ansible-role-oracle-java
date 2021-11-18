@@ -1,0 +1,3 @@
+---
+# defaults file for ansible-role-oracle-java
+oracle_java_version: '11.0.12'

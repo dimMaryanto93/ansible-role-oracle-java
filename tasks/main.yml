@@ -1,0 +1,62 @@
+---
+- name: Load a variable file based on the OS type
+  include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - 'os_{{ansible_os_family | lower }}.yaml'
+      paths:
+        - 'vars'
+
+- name: Load a variable file based on the OS arch
+  include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - 'arch_{{ ansible_architecture }}.yaml'
+      paths:
+        - 'vars'
+
+- name: Debug os version and architecture
+  debug:
+    msg: "os: {{ ansible_os_family | lower }}, arch: {{ ansible_architecture }}"
+
+- name: determine if Java is already installed
+  command: which java
+  register: oracle_java_task_installed
+  changed_when: oracle_java_task_installed.rc != 0
+  failed_when: no
+
+- set_fact:
+    oracle_jdk_filename: "jdk-{{ oracle_java_version }}_{{ ansible_system | lower }}-{{ oracle_java_arch }}_bin.{{ ansible_binary_package }}"
+
+- name: Check for package {{ oracle_jdk_filename }} exists
+  delegate_to: localhost
+  stat:
+    path: "files/{{ oracle_jdk_filename }}"
+  register: local_file
+  failed_when: not local_file.stat.exists
+
+- name: Check that the /tmp/{{ oracle_jdk_filename }} exists
+  stat:
+    path: /tmp/{{ oracle_jdk_filename }}
+  register: file_uploaded
+
+- name: Copy file to server
+  copy:
+     src: "files/{{ oracle_jdk_filename }}"
+     dest: "/tmp/{{ oracle_jdk_filename }}"
+  when: not file_uploaded.stat.exists
+
+- name: Install binary package for Oracle JDK
+  block:   
+    - name: Install rpm package package.
+      yum:
+        name: "/tmp/{{ oracle_jdk_filename }}"
+        state: present
+      when: ansible_facts['os_family'] == 'RedHat'
+        
+    - name: Install deb package package.
+      apt:
+        deb: "/tmp/{{ oracle_jdk_filename }}"
+      when: ansible_facts['os_family'] == 'Debian'
