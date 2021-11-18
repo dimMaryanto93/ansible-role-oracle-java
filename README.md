@@ -67,10 +67,13 @@ Example Playbook
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
 ```ansible
-- hosts: servers
+- hosts: ["all"]
   become: true
-  roles:
-      - { role: dimmaryanto93.oracle_java }
+  roles: 
+    - role: dimmaryanto93.oracle_java
+      vars: 
+      ## specify your jdk version here!
+        oracle_java_version: '11.0.12'
 ```
 
 License
