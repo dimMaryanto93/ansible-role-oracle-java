@@ -30,20 +30,35 @@
 - set_fact:
     oracle_jdk_filename: "jdk-{{ oracle_java_version }}_{{ ansible_system | lower }}-{{ oracle_java_arch }}_bin.{{ ansible_binary_package }}"
 
-- name: Check that the /tmp/{{ oracle_jdk_filename }} exists
-  stat:
-    path: /tmp/{{ oracle_jdk_filename }}
-  register: file_uploaded
+- name: Upload manualy from files folder
+  when: jdk_version < 17
+  block:
+  - name: Check that the /tmp/{{ oracle_jdk_filename }} exists
+    stat:
+      path: /tmp/{{ oracle_jdk_filename }}
+    register: file_uploaded
+  - name: Copy file to server
+    copy:
+      src: "files/{{ oracle_jdk_filename }}"
+      dest: "/tmp/{{ oracle_jdk_filename }}"
+    when: not file_uploaded.stat.exists
 
-- name: Copy file to server
-  copy:
-     src: "files/{{ oracle_jdk_filename }}"
-     dest: "/tmp/{{ oracle_jdk_filename }}"
-  when: not file_uploaded.stat.exists
+- name: Download oracle jdk {{ jdk_version }} from website
+  when: jdk_version >= 17
+  block:
+  - name: Check that the /tmp/{{ oracle_jdk_filename }} exists
+    stat:
+      path: /tmp/{{ oracle_jdk_filename }}
+    register: file_downloaded
+  - name: Copy file to server
+    ansible.builtin.get_url:
+      url: https://download.oracle.com/java/{{ jdk_version }}/latest/{{ oracle_jdk_filename }}
+      dest: "/tmp/{{ oracle_jdk_filename }}"
+    when: not file_downloaded.stat.exists
 
 - name: Install binary package for Oracle JDK
   block:   
-    - name: Install rpm package package.
+    - name: Install rpm package.
       yum:
         name: "/tmp/{{ oracle_jdk_filename }}"
         state: present
