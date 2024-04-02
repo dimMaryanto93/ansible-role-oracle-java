@@ -1,4 +1,4 @@
 ---
 # defaults file for ansible-role-oracle-java
-oracle_java_version: '11.0.12'
 jdk_version: 17 # you can set this value: 8, 11, 17, 21, 22
+oracle_java_version: '{{ jdk_version }}'
